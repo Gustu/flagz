@@ -2,207 +2,217 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 
 // ======================== DATA ========================
 
+const REGIONS = [
+  { id: "all", label: "Wszystkie", emoji: "🌍" },
+  { id: "europe", label: "Europa", emoji: "🇪🇺" },
+  { id: "americas", label: "Ameryki", emoji: "🌎" },
+  { id: "asia", label: "Azja", emoji: "🌏" },
+  { id: "africa", label: "Afryka", emoji: "🌍" },
+  { id: "middle_east", label: "Bliski Wschód", emoji: "🕌" },
+  { id: "oceania", label: "Oceania", emoji: "🏝️" },
+];
+
 const ALL_COUNTRIES = [
   // Tier 1 — Most popular
-  { code: "pl", pl: "Polska", tier: 1 },
-  { code: "de", pl: "Niemcy", tier: 1 },
-  { code: "fr", pl: "Francja", tier: 1 },
-  { code: "gb", pl: "Wielka Brytania", tier: 1 },
-  { code: "it", pl: "Włochy", tier: 1 },
-  { code: "es", pl: "Hiszpania", tier: 1 },
-  { code: "us", pl: "Stany Zjednoczone", tier: 1 },
-  { code: "cn", pl: "Chiny", tier: 1 },
-  { code: "jp", pl: "Japonia", tier: 1 },
-  { code: "in", pl: "Indie", tier: 1 },
-  { code: "br", pl: "Brazylia", tier: 1 },
-  { code: "au", pl: "Australia", tier: 1 },
-  { code: "ca", pl: "Kanada", tier: 1 },
-  { code: "ru", pl: "Rosja", tier: 1 },
-  { code: "ua", pl: "Ukraina", tier: 1 },
-  { code: "cz", pl: "Czechy", tier: 1 },
-  { code: "sk", pl: "Słowacja", tier: 1 },
-  { code: "at", pl: "Austria", tier: 1 },
-  { code: "ch", pl: "Szwajcaria", tier: 1 },
-  { code: "se", pl: "Szwecja", tier: 1 },
-  { code: "no", pl: "Norwegia", tier: 1 },
-  { code: "dk", pl: "Dania", tier: 1 },
-  { code: "fi", pl: "Finlandia", tier: 1 },
-  { code: "nl", pl: "Holandia", tier: 1 },
-  { code: "be", pl: "Belgia", tier: 1 },
-  { code: "ie", pl: "Irlandia", tier: 1 },
-  { code: "pt", pl: "Portugalia", tier: 1 },
-  { code: "gr", pl: "Grecja", tier: 1 },
-  { code: "tr", pl: "Turcja", tier: 1 },
-  { code: "eg", pl: "Egipt", tier: 1 },
-  { code: "mx", pl: "Meksyk", tier: 1 },
-  { code: "kr", pl: "Korea Południowa", tier: 1 },
-  { code: "ar", pl: "Argentyna", tier: 1 },
-  { code: "za", pl: "Republika Południowej Afryki", tier: 1 },
-  { code: "il", pl: "Izrael", tier: 1 },
-  { code: "hu", pl: "Węgry", tier: 1 },
-  { code: "hr", pl: "Chorwacja", tier: 1 },
-  { code: "ro", pl: "Rumunia", tier: 1 },
-  { code: "bg", pl: "Bułgaria", tier: 1 },
-  { code: "lt", pl: "Litwa", tier: 1 },
-  { code: "nz", pl: "Nowa Zelandia", tier: 1 },
-  { code: "is", pl: "Islandia", tier: 1 },
+  { code: "pl", pl: "Polska", tier: 1, region: "europe" },
+  { code: "de", pl: "Niemcy", tier: 1, region: "europe" },
+  { code: "fr", pl: "Francja", tier: 1, region: "europe" },
+  { code: "gb", pl: "Wielka Brytania", tier: 1, region: "europe" },
+  { code: "it", pl: "Włochy", tier: 1, region: "europe" },
+  { code: "es", pl: "Hiszpania", tier: 1, region: "europe" },
+  { code: "us", pl: "Stany Zjednoczone", tier: 1, region: "americas" },
+  { code: "cn", pl: "Chiny", tier: 1, region: "asia" },
+  { code: "jp", pl: "Japonia", tier: 1, region: "asia" },
+  { code: "in", pl: "Indie", tier: 1, region: "asia" },
+  { code: "br", pl: "Brazylia", tier: 1, region: "americas" },
+  { code: "au", pl: "Australia", tier: 1, region: "oceania" },
+  { code: "ca", pl: "Kanada", tier: 1, region: "americas" },
+  { code: "ru", pl: "Rosja", tier: 1, region: "europe" },
+  { code: "ua", pl: "Ukraina", tier: 1, region: "europe" },
+  { code: "cz", pl: "Czechy", tier: 1, region: "europe" },
+  { code: "sk", pl: "Słowacja", tier: 1, region: "europe" },
+  { code: "at", pl: "Austria", tier: 1, region: "europe" },
+  { code: "ch", pl: "Szwajcaria", tier: 1, region: "europe" },
+  { code: "se", pl: "Szwecja", tier: 1, region: "europe" },
+  { code: "no", pl: "Norwegia", tier: 1, region: "europe" },
+  { code: "dk", pl: "Dania", tier: 1, region: "europe" },
+  { code: "fi", pl: "Finlandia", tier: 1, region: "europe" },
+  { code: "nl", pl: "Holandia", tier: 1, region: "europe" },
+  { code: "be", pl: "Belgia", tier: 1, region: "europe" },
+  { code: "ie", pl: "Irlandia", tier: 1, region: "europe" },
+  { code: "pt", pl: "Portugalia", tier: 1, region: "europe" },
+  { code: "gr", pl: "Grecja", tier: 1, region: "europe" },
+  { code: "tr", pl: "Turcja", tier: 1, region: "middle_east" },
+  { code: "eg", pl: "Egipt", tier: 1, region: "africa" },
+  { code: "mx", pl: "Meksyk", tier: 1, region: "americas" },
+  { code: "kr", pl: "Korea Południowa", tier: 1, region: "asia" },
+  { code: "ar", pl: "Argentyna", tier: 1, region: "americas" },
+  { code: "za", pl: "Republika Południowej Afryki", tier: 1, region: "africa" },
+  { code: "il", pl: "Izrael", tier: 1, region: "middle_east" },
+  { code: "hu", pl: "Węgry", tier: 1, region: "europe" },
+  { code: "hr", pl: "Chorwacja", tier: 1, region: "europe" },
+  { code: "ro", pl: "Rumunia", tier: 1, region: "europe" },
+  { code: "bg", pl: "Bułgaria", tier: 1, region: "europe" },
+  { code: "lt", pl: "Litwa", tier: 1, region: "europe" },
+  { code: "nz", pl: "Nowa Zelandia", tier: 1, region: "oceania" },
+  { code: "is", pl: "Islandia", tier: 1, region: "europe" },
 
   // Tier 2 — Moderately known
-  { code: "by", pl: "Białoruś", tier: 2 },
-  { code: "ee", pl: "Estonia", tier: 2 },
-  { code: "lv", pl: "Łotwa", tier: 2 },
-  { code: "si", pl: "Słowenia", tier: 2 },
-  { code: "lu", pl: "Luksemburg", tier: 2 },
-  { code: "mt", pl: "Malta", tier: 2 },
-  { code: "cy", pl: "Cypr", tier: 2 },
-  { code: "rs", pl: "Serbia", tier: 2 },
-  { code: "ba", pl: "Bośnia i Hercegowina", tier: 2 },
-  { code: "me", pl: "Czarnogóra", tier: 2 },
-  { code: "al", pl: "Albania", tier: 2 },
-  { code: "mk", pl: "Macedonia Północna", tier: 2 },
-  { code: "md", pl: "Mołdawia", tier: 2 },
-  { code: "ge", pl: "Gruzja", tier: 2 },
-  { code: "am", pl: "Armenia", tier: 2 },
-  { code: "az", pl: "Azerbejdżan", tier: 2 },
-  { code: "ir", pl: "Iran", tier: 2 },
-  { code: "iq", pl: "Irak", tier: 2 },
-  { code: "sa", pl: "Arabia Saudyjska", tier: 2 },
-  { code: "ae", pl: "Zjednoczone Emiraty Arabskie", tier: 2 },
-  { code: "pk", pl: "Pakistan", tier: 2 },
-  { code: "bd", pl: "Bangladesz", tier: 2 },
-  { code: "th", pl: "Tajlandia", tier: 2 },
-  { code: "vn", pl: "Wietnam", tier: 2 },
-  { code: "id", pl: "Indonezja", tier: 2 },
-  { code: "ph", pl: "Filipiny", tier: 2 },
-  { code: "my", pl: "Malezja", tier: 2 },
-  { code: "sg", pl: "Singapur", tier: 2 },
-  { code: "tw", pl: "Tajwan", tier: 2 },
-  { code: "kp", pl: "Korea Północna", tier: 2 },
-  { code: "kz", pl: "Kazachstan", tier: 2 },
-  { code: "co", pl: "Kolumbia", tier: 2 },
-  { code: "cl", pl: "Chile", tier: 2 },
-  { code: "pe", pl: "Peru", tier: 2 },
-  { code: "cu", pl: "Kuba", tier: 2 },
-  { code: "ma", pl: "Maroko", tier: 2 },
-  { code: "ng", pl: "Nigeria", tier: 2 },
-  { code: "ke", pl: "Kenia", tier: 2 },
-  { code: "et", pl: "Etiopia", tier: 2 },
-  { code: "dz", pl: "Algieria", tier: 2 },
-  { code: "tn", pl: "Tunezja", tier: 2 },
-  { code: "gh", pl: "Ghana", tier: 2 },
-  { code: "tz", pl: "Tanzania", tier: 2 },
-  { code: "sy", pl: "Syria", tier: 2 },
-  { code: "jo", pl: "Jordania", tier: 2 },
-  { code: "lb", pl: "Liban", tier: 2 },
-  { code: "np", pl: "Nepal", tier: 2 },
-  { code: "mm", pl: "Mjanma", tier: 2 },
-  { code: "kh", pl: "Kambodża", tier: 2 },
-  { code: "lk", pl: "Sri Lanka", tier: 2 },
-  { code: "uy", pl: "Urugwaj", tier: 2 },
-  { code: "ec", pl: "Ekwador", tier: 2 },
+  { code: "by", pl: "Białoruś", tier: 2, region: "europe" },
+  { code: "ee", pl: "Estonia", tier: 2, region: "europe" },
+  { code: "lv", pl: "Łotwa", tier: 2, region: "europe" },
+  { code: "si", pl: "Słowenia", tier: 2, region: "europe" },
+  { code: "lu", pl: "Luksemburg", tier: 2, region: "europe" },
+  { code: "mt", pl: "Malta", tier: 2, region: "europe" },
+  { code: "cy", pl: "Cypr", tier: 2, region: "europe" },
+  { code: "rs", pl: "Serbia", tier: 2, region: "europe" },
+  { code: "ba", pl: "Bośnia i Hercegowina", tier: 2, region: "europe" },
+  { code: "me", pl: "Czarnogóra", tier: 2, region: "europe" },
+  { code: "al", pl: "Albania", tier: 2, region: "europe" },
+  { code: "mk", pl: "Macedonia Północna", tier: 2, region: "europe" },
+  { code: "md", pl: "Mołdawia", tier: 2, region: "europe" },
+  { code: "ge", pl: "Gruzja", tier: 2, region: "europe" },
+  { code: "am", pl: "Armenia", tier: 2, region: "middle_east" },
+  { code: "az", pl: "Azerbejdżan", tier: 2, region: "middle_east" },
+  { code: "ir", pl: "Iran", tier: 2, region: "middle_east" },
+  { code: "iq", pl: "Irak", tier: 2, region: "middle_east" },
+  { code: "sa", pl: "Arabia Saudyjska", tier: 2, region: "middle_east" },
+  { code: "ae", pl: "Zjednoczone Emiraty Arabskie", tier: 2, region: "middle_east" },
+  { code: "pk", pl: "Pakistan", tier: 2, region: "asia" },
+  { code: "bd", pl: "Bangladesz", tier: 2, region: "asia" },
+  { code: "th", pl: "Tajlandia", tier: 2, region: "asia" },
+  { code: "vn", pl: "Wietnam", tier: 2, region: "asia" },
+  { code: "id", pl: "Indonezja", tier: 2, region: "asia" },
+  { code: "ph", pl: "Filipiny", tier: 2, region: "asia" },
+  { code: "my", pl: "Malezja", tier: 2, region: "asia" },
+  { code: "sg", pl: "Singapur", tier: 2, region: "asia" },
+  { code: "tw", pl: "Tajwan", tier: 2, region: "asia" },
+  { code: "kp", pl: "Korea Północna", tier: 2, region: "asia" },
+  { code: "kz", pl: "Kazachstan", tier: 2, region: "asia" },
+  { code: "co", pl: "Kolumbia", tier: 2, region: "americas" },
+  { code: "cl", pl: "Chile", tier: 2, region: "americas" },
+  { code: "pe", pl: "Peru", tier: 2, region: "americas" },
+  { code: "cu", pl: "Kuba", tier: 2, region: "americas" },
+  { code: "ma", pl: "Maroko", tier: 2, region: "africa" },
+  { code: "ng", pl: "Nigeria", tier: 2, region: "africa" },
+  { code: "ke", pl: "Kenia", tier: 2, region: "africa" },
+  { code: "et", pl: "Etiopia", tier: 2, region: "africa" },
+  { code: "dz", pl: "Algieria", tier: 2, region: "africa" },
+  { code: "tn", pl: "Tunezja", tier: 2, region: "africa" },
+  { code: "gh", pl: "Ghana", tier: 2, region: "africa" },
+  { code: "tz", pl: "Tanzania", tier: 2, region: "africa" },
+  { code: "sy", pl: "Syria", tier: 2, region: "middle_east" },
+  { code: "jo", pl: "Jordania", tier: 2, region: "middle_east" },
+  { code: "lb", pl: "Liban", tier: 2, region: "middle_east" },
+  { code: "np", pl: "Nepal", tier: 2, region: "asia" },
+  { code: "mm", pl: "Mjanma", tier: 2, region: "asia" },
+  { code: "kh", pl: "Kambodża", tier: 2, region: "asia" },
+  { code: "lk", pl: "Sri Lanka", tier: 2, region: "asia" },
+  { code: "uy", pl: "Urugwaj", tier: 2, region: "americas" },
+  { code: "ec", pl: "Ekwador", tier: 2, region: "americas" },
 
   // Tier 3 — Less commonly known
-  { code: "af", pl: "Afganistan", tier: 3 },
-  { code: "ad", pl: "Andora", tier: 3 },
-  { code: "ao", pl: "Angola", tier: 3 },
-  { code: "ag", pl: "Antigua i Barbuda", tier: 3 },
-  { code: "bs", pl: "Bahamy", tier: 3 },
-  { code: "bh", pl: "Bahrajn", tier: 3 },
-  { code: "bb", pl: "Barbados", tier: 3 },
-  { code: "bz", pl: "Belize", tier: 3 },
-  { code: "bj", pl: "Benin", tier: 3 },
-  { code: "bt", pl: "Bhutan", tier: 3 },
-  { code: "bo", pl: "Boliwia", tier: 3 },
-  { code: "bw", pl: "Botswana", tier: 3 },
-  { code: "bn", pl: "Brunei", tier: 3 },
-  { code: "bf", pl: "Burkina Faso", tier: 3 },
-  { code: "bi", pl: "Burundi", tier: 3 },
-  { code: "cv", pl: "Cabo Verde", tier: 3 },
-  { code: "cm", pl: "Kamerun", tier: 3 },
-  { code: "cf", pl: "Republika Środkowoafrykańska", tier: 3 },
-  { code: "td", pl: "Czad", tier: 3 },
-  { code: "km", pl: "Komory", tier: 3 },
-  { code: "cd", pl: "Demokratyczna Republika Konga", tier: 3 },
-  { code: "cg", pl: "Kongo", tier: 3 },
-  { code: "cr", pl: "Kostaryka", tier: 3 },
-  { code: "ci", pl: "Wybrzeże Kości Słoniowej", tier: 3 },
-  { code: "dj", pl: "Dżibuti", tier: 3 },
-  { code: "dm", pl: "Dominika", tier: 3 },
-  { code: "do", pl: "Dominikana", tier: 3 },
-  { code: "sv", pl: "Salwador", tier: 3 },
-  { code: "gq", pl: "Gwinea Równikowa", tier: 3 },
-  { code: "er", pl: "Erytrea", tier: 3 },
-  { code: "sz", pl: "Eswatini", tier: 3 },
-  { code: "fj", pl: "Fidżi", tier: 3 },
-  { code: "ga", pl: "Gabon", tier: 3 },
-  { code: "gm", pl: "Gambia", tier: 3 },
-  { code: "gd", pl: "Grenada", tier: 3 },
-  { code: "gt", pl: "Gwatemala", tier: 3 },
-  { code: "gn", pl: "Gwinea", tier: 3 },
-  { code: "gw", pl: "Gwinea Bissau", tier: 3 },
-  { code: "gy", pl: "Gujana", tier: 3 },
-  { code: "ht", pl: "Haiti", tier: 3 },
-  { code: "hn", pl: "Honduras", tier: 3 },
-  { code: "jm", pl: "Jamajka", tier: 3 },
-  { code: "kw", pl: "Kuwejt", tier: 3 },
-  { code: "kg", pl: "Kirgistan", tier: 3 },
-  { code: "la", pl: "Laos", tier: 3 },
-  { code: "ls", pl: "Lesotho", tier: 3 },
-  { code: "lr", pl: "Liberia", tier: 3 },
-  { code: "ly", pl: "Libia", tier: 3 },
-  { code: "li", pl: "Liechtenstein", tier: 3 },
-  { code: "mg", pl: "Madagaskar", tier: 3 },
-  { code: "mw", pl: "Malawi", tier: 3 },
-  { code: "mv", pl: "Malediwy", tier: 3 },
-  { code: "ml", pl: "Mali", tier: 3 },
-  { code: "mh", pl: "Wyspy Marshalla", tier: 3 },
-  { code: "mr", pl: "Mauretania", tier: 3 },
-  { code: "mu", pl: "Mauritius", tier: 3 },
-  { code: "fm", pl: "Mikronezja", tier: 3 },
-  { code: "mc", pl: "Monako", tier: 3 },
-  { code: "mn", pl: "Mongolia", tier: 3 },
-  { code: "mz", pl: "Mozambik", tier: 3 },
-  { code: "na", pl: "Namibia", tier: 3 },
-  { code: "nr", pl: "Nauru", tier: 3 },
-  { code: "ni", pl: "Nikaragua", tier: 3 },
-  { code: "ne", pl: "Niger", tier: 3 },
-  { code: "om", pl: "Oman", tier: 3 },
-  { code: "pw", pl: "Palau", tier: 3 },
-  { code: "pa", pl: "Panama", tier: 3 },
-  { code: "pg", pl: "Papua-Nowa Gwinea", tier: 3 },
-  { code: "py", pl: "Paragwaj", tier: 3 },
-  { code: "qa", pl: "Katar", tier: 3 },
-  { code: "rw", pl: "Rwanda", tier: 3 },
-  { code: "kn", pl: "Saint Kitts i Nevis", tier: 3 },
-  { code: "lc", pl: "Saint Lucia", tier: 3 },
-  { code: "vc", pl: "Saint Vincent i Grenadyny", tier: 3 },
-  { code: "ws", pl: "Samoa", tier: 3 },
-  { code: "sm", pl: "San Marino", tier: 3 },
-  { code: "st", pl: "Wyspy Świętego Tomasza i Książęca", tier: 3 },
-  { code: "sn", pl: "Senegal", tier: 3 },
-  { code: "sc", pl: "Seszele", tier: 3 },
-  { code: "sl", pl: "Sierra Leone", tier: 3 },
-  { code: "sb", pl: "Wyspy Salomona", tier: 3 },
-  { code: "so", pl: "Somalia", tier: 3 },
-  { code: "ss", pl: "Sudan Południowy", tier: 3 },
-  { code: "sd", pl: "Sudan", tier: 3 },
-  { code: "sr", pl: "Surinam", tier: 3 },
-  { code: "tj", pl: "Tadżykistan", tier: 3 },
-  { code: "tl", pl: "Timor Wschodni", tier: 3 },
-  { code: "tg", pl: "Togo", tier: 3 },
-  { code: "to", pl: "Tonga", tier: 3 },
-  { code: "tt", pl: "Trynidad i Tobago", tier: 3 },
-  { code: "tm", pl: "Turkmenistan", tier: 3 },
-  { code: "tv", pl: "Tuvalu", tier: 3 },
-  { code: "ug", pl: "Uganda", tier: 3 },
-  { code: "uz", pl: "Uzbekistan", tier: 3 },
-  { code: "vu", pl: "Vanuatu", tier: 3 },
-  { code: "va", pl: "Watykan", tier: 3 },
-  { code: "ve", pl: "Wenezuela", tier: 3 },
-  { code: "ye", pl: "Jemen", tier: 3 },
-  { code: "zm", pl: "Zambia", tier: 3 },
-  { code: "zw", pl: "Zimbabwe", tier: 3 },
-  { code: "ps", pl: "Palestyna", tier: 3 },
+  { code: "af", pl: "Afganistan", tier: 3, region: "asia" },
+  { code: "ad", pl: "Andora", tier: 3, region: "europe" },
+  { code: "ao", pl: "Angola", tier: 3, region: "africa" },
+  { code: "ag", pl: "Antigua i Barbuda", tier: 3, region: "americas" },
+  { code: "bs", pl: "Bahamy", tier: 3, region: "americas" },
+  { code: "bh", pl: "Bahrajn", tier: 3, region: "middle_east" },
+  { code: "bb", pl: "Barbados", tier: 3, region: "americas" },
+  { code: "bz", pl: "Belize", tier: 3, region: "americas" },
+  { code: "bj", pl: "Benin", tier: 3, region: "africa" },
+  { code: "bt", pl: "Bhutan", tier: 3, region: "asia" },
+  { code: "bo", pl: "Boliwia", tier: 3, region: "americas" },
+  { code: "bw", pl: "Botswana", tier: 3, region: "africa" },
+  { code: "bn", pl: "Brunei", tier: 3, region: "asia" },
+  { code: "bf", pl: "Burkina Faso", tier: 3, region: "africa" },
+  { code: "bi", pl: "Burundi", tier: 3, region: "africa" },
+  { code: "cv", pl: "Cabo Verde", tier: 3, region: "africa" },
+  { code: "cm", pl: "Kamerun", tier: 3, region: "africa" },
+  { code: "cf", pl: "Republika Środkowoafrykańska", tier: 3, region: "africa" },
+  { code: "td", pl: "Czad", tier: 3, region: "africa" },
+  { code: "km", pl: "Komory", tier: 3, region: "africa" },
+  { code: "cd", pl: "Demokratyczna Republika Konga", tier: 3, region: "africa" },
+  { code: "cg", pl: "Kongo", tier: 3, region: "africa" },
+  { code: "cr", pl: "Kostaryka", tier: 3, region: "americas" },
+  { code: "ci", pl: "Wybrzeże Kości Słoniowej", tier: 3, region: "africa" },
+  { code: "dj", pl: "Dżibuti", tier: 3, region: "africa" },
+  { code: "dm", pl: "Dominika", tier: 3, region: "americas" },
+  { code: "do", pl: "Dominikana", tier: 3, region: "americas" },
+  { code: "sv", pl: "Salwador", tier: 3, region: "americas" },
+  { code: "gq", pl: "Gwinea Równikowa", tier: 3, region: "africa" },
+  { code: "er", pl: "Erytrea", tier: 3, region: "africa" },
+  { code: "sz", pl: "Eswatini", tier: 3, region: "africa" },
+  { code: "fj", pl: "Fidżi", tier: 3, region: "oceania" },
+  { code: "ga", pl: "Gabon", tier: 3, region: "africa" },
+  { code: "gm", pl: "Gambia", tier: 3, region: "africa" },
+  { code: "gd", pl: "Grenada", tier: 3, region: "americas" },
+  { code: "gt", pl: "Gwatemala", tier: 3, region: "americas" },
+  { code: "gn", pl: "Gwinea", tier: 3, region: "africa" },
+  { code: "gw", pl: "Gwinea Bissau", tier: 3, region: "africa" },
+  { code: "gy", pl: "Gujana", tier: 3, region: "americas" },
+  { code: "ht", pl: "Haiti", tier: 3, region: "americas" },
+  { code: "hn", pl: "Honduras", tier: 3, region: "americas" },
+  { code: "jm", pl: "Jamajka", tier: 3, region: "americas" },
+  { code: "kw", pl: "Kuwejt", tier: 3, region: "middle_east" },
+  { code: "kg", pl: "Kirgistan", tier: 3, region: "asia" },
+  { code: "la", pl: "Laos", tier: 3, region: "asia" },
+  { code: "ls", pl: "Lesotho", tier: 3, region: "africa" },
+  { code: "lr", pl: "Liberia", tier: 3, region: "africa" },
+  { code: "ly", pl: "Libia", tier: 3, region: "africa" },
+  { code: "li", pl: "Liechtenstein", tier: 3, region: "europe" },
+  { code: "mg", pl: "Madagaskar", tier: 3, region: "africa" },
+  { code: "mw", pl: "Malawi", tier: 3, region: "africa" },
+  { code: "mv", pl: "Malediwy", tier: 3, region: "asia" },
+  { code: "ml", pl: "Mali", tier: 3, region: "africa" },
+  { code: "mh", pl: "Wyspy Marshalla", tier: 3, region: "oceania" },
+  { code: "mr", pl: "Mauretania", tier: 3, region: "africa" },
+  { code: "mu", pl: "Mauritius", tier: 3, region: "africa" },
+  { code: "fm", pl: "Mikronezja", tier: 3, region: "oceania" },
+  { code: "mc", pl: "Monako", tier: 3, region: "europe" },
+  { code: "mn", pl: "Mongolia", tier: 3, region: "asia" },
+  { code: "mz", pl: "Mozambik", tier: 3, region: "africa" },
+  { code: "na", pl: "Namibia", tier: 3, region: "africa" },
+  { code: "nr", pl: "Nauru", tier: 3, region: "oceania" },
+  { code: "ni", pl: "Nikaragua", tier: 3, region: "americas" },
+  { code: "ne", pl: "Niger", tier: 3, region: "africa" },
+  { code: "om", pl: "Oman", tier: 3, region: "middle_east" },
+  { code: "pw", pl: "Palau", tier: 3, region: "oceania" },
+  { code: "pa", pl: "Panama", tier: 3, region: "americas" },
+  { code: "pg", pl: "Papua-Nowa Gwinea", tier: 3, region: "oceania" },
+  { code: "py", pl: "Paragwaj", tier: 3, region: "americas" },
+  { code: "qa", pl: "Katar", tier: 3, region: "middle_east" },
+  { code: "rw", pl: "Rwanda", tier: 3, region: "africa" },
+  { code: "kn", pl: "Saint Kitts i Nevis", tier: 3, region: "americas" },
+  { code: "lc", pl: "Saint Lucia", tier: 3, region: "americas" },
+  { code: "vc", pl: "Saint Vincent i Grenadyny", tier: 3, region: "americas" },
+  { code: "ws", pl: "Samoa", tier: 3, region: "oceania" },
+  { code: "sm", pl: "San Marino", tier: 3, region: "europe" },
+  { code: "st", pl: "Wyspy Świętego Tomasza i Książęca", tier: 3, region: "africa" },
+  { code: "sn", pl: "Senegal", tier: 3, region: "africa" },
+  { code: "sc", pl: "Seszele", tier: 3, region: "africa" },
+  { code: "sl", pl: "Sierra Leone", tier: 3, region: "africa" },
+  { code: "sb", pl: "Wyspy Salomona", tier: 3, region: "oceania" },
+  { code: "so", pl: "Somalia", tier: 3, region: "africa" },
+  { code: "ss", pl: "Sudan Południowy", tier: 3, region: "africa" },
+  { code: "sd", pl: "Sudan", tier: 3, region: "africa" },
+  { code: "sr", pl: "Surinam", tier: 3, region: "americas" },
+  { code: "tj", pl: "Tadżykistan", tier: 3, region: "asia" },
+  { code: "tl", pl: "Timor Wschodni", tier: 3, region: "asia" },
+  { code: "tg", pl: "Togo", tier: 3, region: "africa" },
+  { code: "to", pl: "Tonga", tier: 3, region: "oceania" },
+  { code: "tt", pl: "Trynidad i Tobago", tier: 3, region: "americas" },
+  { code: "tm", pl: "Turkmenistan", tier: 3, region: "asia" },
+  { code: "tv", pl: "Tuvalu", tier: 3, region: "oceania" },
+  { code: "ug", pl: "Uganda", tier: 3, region: "africa" },
+  { code: "uz", pl: "Uzbekistan", tier: 3, region: "asia" },
+  { code: "vu", pl: "Vanuatu", tier: 3, region: "oceania" },
+  { code: "va", pl: "Watykan", tier: 3, region: "europe" },
+  { code: "ve", pl: "Wenezuela", tier: 3, region: "americas" },
+  { code: "ye", pl: "Jemen", tier: 3, region: "middle_east" },
+  { code: "zm", pl: "Zambia", tier: 3, region: "africa" },
+  { code: "zw", pl: "Zimbabwe", tier: 3, region: "africa" },
+  { code: "ps", pl: "Palestyna", tier: 3, region: "middle_east" },
 ];
 
 const SPEECH_ALIASES = {
@@ -343,8 +353,29 @@ const CSS = `
 // ======================== APP ========================
 
 export default function App() {
-  const [mode, setMode] = useState("menu"); // menu | learn | quiz
+  const [mode, setMode] = useState("menu"); // menu | learn | quiz | checklist
   const [tier, setTier] = useState(1);
+  const [region, setRegion] = useState("all");
+
+  // Checklist state — persisted in localStorage
+  const [knownFlags, setKnownFlags] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("flagz_known") || "[]");
+    } catch { return []; }
+  });
+
+  const toggleKnown = useCallback((code) => {
+    setKnownFlags((prev) => {
+      const next = prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code];
+      localStorage.setItem("flagz_known", JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const resetKnown = useCallback(() => {
+    setKnownFlags([]);
+    localStorage.removeItem("flagz_known");
+  }, []);
 
   // Learn state
   const [learnIndex, setLearnIndex] = useState(0);
@@ -363,15 +394,20 @@ export default function App() {
   const [voiceFeedback, setVoiceFeedback] = useState(null);
 
   const countries = useMemo(
-    () => ALL_COUNTRIES.filter((c) => c.tier <= tier),
-    [tier]
+    () => ALL_COUNTRIES.filter((c) => c.tier <= tier && (region === "all" || c.region === region)),
+    [tier, region]
+  );
+
+  const filteredByRegion = useMemo(
+    () => region === "all" ? ALL_COUNTRIES : ALL_COUNTRIES.filter((c) => c.region === region),
+    [region]
   );
 
   const tierCounts = useMemo(() => ({
-    1: ALL_COUNTRIES.filter((c) => c.tier <= 1).length,
-    2: ALL_COUNTRIES.filter((c) => c.tier <= 2).length,
-    3: ALL_COUNTRIES.length,
-  }), []);
+    1: filteredByRegion.filter((c) => c.tier <= 1).length,
+    2: filteredByRegion.filter((c) => c.tier <= 2).length,
+    3: filteredByRegion.length,
+  }), [filteredByRegion]);
 
   // Voice recognition
   const voiceHandlerRef = useRef(null);
@@ -540,6 +576,25 @@ export default function App() {
         }}>
           <div style={{ fontSize: 64, animation: "float 4s ease-in-out infinite" }}>🌍</div>
 
+          {/* Region picker */}
+          <div style={{
+            display: "flex", flexWrap: "wrap", gap: 6, width: "100%",
+            background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 14, padding: 6,
+          }}>
+            {REGIONS.map(({ id, label, emoji }) => (
+              <button key={id} onClick={() => setRegion(id)} style={{
+                flex: id === "all" ? "1 1 100%" : "1 1 calc(33.33% - 4px)",
+                background: region === id ? "rgba(90,160,255,0.15)" : "transparent",
+                border: region === id ? "1px solid rgba(90,160,255,0.4)" : "1px solid transparent",
+                borderRadius: 10, padding: "10px 6px", cursor: "pointer", textAlign: "center",
+                color: region === id ? "#8fc4ff" : "#5a7a9a", fontFamily: dmSans, fontSize: 12, fontWeight: 700,
+              }}>
+                {emoji} {label}
+              </button>
+            ))}
+          </div>
+
           {/* Tier picker */}
           <div style={{
             display: "flex", gap: 6, width: "100%",
@@ -589,6 +644,20 @@ export default function App() {
                 <div style={{ color: "#f0e6d0", fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Quiz</div>
                 <div style={{ color: "#6a7b90", fontSize: 13, fontFamily: dmSans }}>
                   {QUIZ_LENGTH} pytań · powiedz lub wybierz · zdobywaj punkty
+                </div>
+              </div>
+            </button>
+
+            <button className="btn" onClick={() => setMode("checklist")} style={{
+              background: "rgba(72,199,116,0.06)", border: "1px solid rgba(72,199,116,0.2)",
+              borderRadius: 18, padding: "28px 28px", textAlign: "left",
+              display: "flex", alignItems: "center", gap: 20,
+            }}>
+              <div style={{ fontSize: 40 }}>✅</div>
+              <div>
+                <div style={{ color: "#f0e6d0", fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Tablica</div>
+                <div style={{ color: "#6a7b90", fontSize: 13, fontFamily: dmSans }}>
+                  Odhaczaj flagi które znasz · {knownFlags.length > 0 ? `znasz już ${knownFlags.length}` : "zacznij odhaczać"}
                 </div>
               </div>
             </button>
@@ -851,6 +920,104 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ==================== CHECKLIST MODE ==================== */}
+      {mode === "checklist" && (() => {
+        const unknown = countries.filter((c) => !knownFlags.includes(c.code));
+        const knownCount = countries.length - unknown.length;
+        const pct = Math.round((knownCount / countries.length) * 100);
+        return (
+          <div style={{
+            width: "100%", maxWidth: 600,
+            display: "flex", flexDirection: "column", alignItems: "center", gap: 16,
+            animation: "fadeSlideUp 0.5s ease",
+          }}>
+            {/* Progress bar */}
+            <div style={{
+              width: "100%", background: "rgba(255,255,255,0.03)",
+              border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14,
+              padding: "16px 20px", display: "flex", flexDirection: "column", gap: 10,
+            }}>
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+              }}>
+                <span style={{ color: "#f0e6d0", fontFamily: dmSans, fontSize: 14, fontWeight: 700 }}>
+                  {knownCount} / {countries.length} flag
+                </span>
+                <span style={{ color: gold, fontFamily: dmSans, fontSize: 14, fontWeight: 700 }}>
+                  {pct}%
+                </span>
+              </div>
+              <div style={{
+                width: "100%", height: 8, borderRadius: 4,
+                background: "rgba(255,255,255,0.06)", overflow: "hidden",
+              }}>
+                <div style={{
+                  width: `${pct}%`, height: "100%", borderRadius: 4,
+                  background: `linear-gradient(90deg, ${gold}, ${goldLight})`,
+                  transition: "width 0.4s ease",
+                }} />
+              </div>
+              {knownCount > 0 && (
+                <button className="btn" onClick={resetKnown} style={{
+                  alignSelf: "flex-end", background: "rgba(255,89,89,0.08)",
+                  border: "1px solid rgba(255,89,89,0.2)", borderRadius: 8,
+                  padding: "6px 14px", color: "#ff7f7f", fontFamily: dmSans,
+                  fontSize: 11, fontWeight: 600,
+                }}>
+                  Resetuj postęp
+                </button>
+              )}
+            </div>
+
+            {/* Flag grid */}
+            {knownCount === countries.length && (
+              <div style={{
+                textAlign: "center", padding: "24px 24px 0",
+                animation: "scaleIn 0.4s ease",
+              }}>
+                <div style={{ fontSize: 48, marginBottom: 8, animation: "float 3s ease-in-out infinite" }}>🏆</div>
+                <div style={{ fontSize: 22, fontWeight: 900, color: "#f0e6d0", marginBottom: 4 }}>
+                  Wszystkie flagi opanowane!
+                </div>
+                <div style={{ color: "#6a7b90", fontFamily: dmSans, fontSize: 14 }}>
+                  Znasz {countries.length} flag. Brawo!
+                </div>
+              </div>
+            )}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
+              gap: 8, width: "100%",
+            }}>
+              {countries.map((c) => {
+                const isKnown = knownFlags.includes(c.code);
+                return (
+                  <button key={c.code} className="btn" onClick={() => toggleKnown(c.code)} style={{
+                    background: isKnown ? "rgba(72,199,116,0.12)" : "rgba(255,255,255,0.03)",
+                    border: isKnown ? "1px solid rgba(72,199,116,0.35)" : "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: 12, padding: "10px 4px",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                    cursor: "pointer", animation: "fadeIn 0.3s ease",
+                    position: "relative",
+                  }}>
+                    <span style={{ fontSize: 36, lineHeight: 1 }}>{flagEmoji(c.code)}</span>
+                    <span style={{
+                      color: isKnown ? "#48c774" : "#8a9aaa", fontFamily: dmSans, fontSize: 10,
+                      fontWeight: 600, textAlign: "center", lineHeight: 1.2,
+                      maxWidth: "100%", overflow: "hidden",
+                    }}>{c.pl}</span>
+                    {isKnown && <span style={{
+                      position: "absolute", top: 4, right: 6,
+                      fontSize: 12, color: "#48c774",
+                    }}>✓</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* ==================== QUIZ RESULTS ==================== */}
       {mode === "quiz" && quizDone && (() => {
